@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crave Drip — Artisan Coffee, Crafted Daily</title>
+    
+    <!-- Google Fonts: Playfair Display (elegant serif) + DM Sans (clean modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Our custom stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    
+    <!-- ==========================================
+         NAVIGATION BAR
+         ========================================== -->
+    <nav id="navbar">
+        <div class="logo">Crave<span>Drip</span></div>
+        
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#features">Why Us</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        
+        <a href="#menu" class="nav-cta">Order Now</a>
+        
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+    
+    <!-- ==========================================
+         HERO SECTION
+         ========================================== -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <span class="hero-tag">
+                <i class="fas fa-mug-hot"></i>
+                Freshly Roasted Daily
+            </span>
+            
+            <h1>Where every <em>sip</em> tells a story</h1>
+            
+            <p>Crafted with passion in the heart of Davao. From bean to cup, we bring you the finest artisan coffee experience that awakens your senses.</p>
+            
+            <div class="hero-buttons">
+                <a href="#menu" class="btn-primary">
+                    Explore Menu <i class="fas fa-arrow-right"></i>
+                </a>
+                <a href="#about" class="btn-secondary">
+                    <i class="fas fa-play-circle"></i> Our Story
+                </a>
+            </div>
+        </div>
+        
+        <div class="hero-image">
+            <div class="hero-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=600&fit=crop" alt="Premium coffee">
+            </div>
+            
+            <!-- Floating badges with stats -->
+            <div class="floating-badge top">
+                <i class="fas fa-star"></i>
+                <div>
+                    <div class="badge-text">4.9 Rating</div>
+                    <small>2,500+ reviews</small>
+                </div>
+            </div>
+            
+            <div class="floating-badge bottom">
+                <i class="fas fa-coffee"></i>
+                <div>
+                    <div class="badge-text">15+ Blends</div>
+                    <small>Single origin</small>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ==========================================
+         ABOUT SECTION
+         ========================================== -->
+    <section class="about" id="about">
+        <div class="about-container">
+            <div class="reveal">
+                <span class="section-label">Our Story</span>
+                <h2 class="section-title">A passion brewed since <em>2018</em></h2>
+                <p>What started as a small dream in a tiny Davao kitchen has grown into a beloved coffee destination. We source our beans directly from local farmers in the highlands of Mindanao, ensuring every cup supports our community.</p>
+                <p>Every cup we serve carries the dedication of our baristas, the warmth of our community, and the rich heritage of Filipino coffee culture.</p>
+                
+                <div class="about-stats">
+                    <div>
+                        <div class="stat-number">7+</div>
+                        <div class="stat-label">Years of Excellence</div>
+                    </div>
+                    <div>
+                        <div class="stat-number">50K</div>
+                        <div class="stat-label">Happy Customers</div>
+                    </div>
+                    <div>
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Locally Sourced</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-image reveal">
+                <img src="https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=600&h=750&fit=crop" alt="Coffee shop interior">
+            </div>
+        </div>
+    </section>
+    
+    <!-- ==========================================
+         MENU SECTION
+         ========================================== -->
+    <section class="menu" id="menu">
+        <div class="menu-header reveal">
+            <span class="section-label">Our Menu</span>
+            <h2 class="section-title">Crafted with <em>love</em>, served with care</h2>
+            <p>Discover our handpicked selection of premium coffees, refreshing drinks, and freshly baked pastries.</p>
+        </div>
+        
+        <!-- Category filter buttons -->
+        <div class="menu-categories reveal">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="coffee">Coffee</button>
+            <button class="category-btn" data-category="tea">Tea</button>
+            <button class="category-btn" data-category="pastry">Pastries</button>
+            <button class="category-btn" data-category="cold">Cold Drinks</button>
+        </div>
+        
+        <!-- Menu items grid (will be loaded dynamically later from MySQL) -->
+        <div class="menu-grid" id="menuGrid">
+            
+            <div class="menu-item reveal" data-category="coffee">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop" alt="Espresso">
+                    <span class="menu-item-badge">Bestseller</span>
+                </div>
+                <div class="menu-item-content">
+                    <h3>Classic Espresso</h3>
+                    <p class="menu-item-desc">Bold, rich, and perfectly extracted shot of pure coffee bliss.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱85</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="coffee">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1561882468-9110e03e0f78?w=400&h=300&fit=crop" alt="Cappuccino">
+                </div>
+                <div class="menu-item-content">
+                    <h3>Vanilla Cappuccino</h3>
+                    <p class="menu-item-desc">Velvety smooth espresso topped with creamy foam and vanilla.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱120</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="coffee">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400&h=300&fit=crop" alt="Latte">
+                    <span class="menu-item-badge">New</span>
+                </div>
+                <div class="menu-item-content">
+                    <h3>Caramel Macchiato</h3>
+                    <p class="menu-item-desc">Sweet caramel layered with espresso and steamed milk.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱150</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="cold">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop" alt="Iced Coffee">
+                </div>
+                <div class="menu-item-content">
+                    <h3>Iced Mocha Frappe</h3>
+                    <p class="menu-item-desc">Chilled chocolate-coffee blend topped with whipped cream.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱165</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="tea">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=400&h=300&fit=crop" alt="Tea">
+                </div>
+                <div class="menu-item-content">
+                    <h3>Matcha Latte</h3>
+                    <p class="menu-item-desc">Premium Japanese matcha whisked with steamed milk.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱140</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="pastry">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=300&fit=crop" alt="Croissant">
+                    <span class="menu-item-badge">Fresh</span>
+                </div>
+                <div class="menu-item-content">
+                    <h3>Butter Croissant</h3>
+                    <p class="menu-item-desc">Flaky, buttery French pastry baked fresh every morning.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱75</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="pastry">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=300&fit=crop" alt="Cake">
+                </div>
+                <div class="menu-item-content">
+                    <h3>Chocolate Cake</h3>
+                    <p class="menu-item-desc">Rich, moist chocolate cake with ganache topping.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱110</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="menu-item reveal" data-category="cold">
+                <div class="menu-item-image">
+                    <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400&h=300&fit=crop" alt="Smoothie">
+                </div>
+                <div class="menu-item-content">
+                    <h3>Mango Smoothie</h3>
+                    <p class="menu-item-desc">Fresh Davao mangoes blended with yogurt and honey.</p>
+                    <div class="menu-item-footer">
+                        <span class="menu-item-price">₱130</span>
+                        <button class="menu-item-add"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    <!-- ==========================================
+         FEATURES / WHY CHOOSE US SECTION
+         ========================================== -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="features-header reveal">
+                <span class="section-label" style="color: var(--color-caramel);">Why Choose Us</span>
+                <h2 class="section-title">More than just <em>coffee</em></h2>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-leaf"></i></div>
+                    <h3>100% Organic</h3>
+                    <p>Sourced directly from local farmers using sustainable, eco-friendly practices.</p>
+                </div>
+                
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-fire"></i></div>
+                    <h3>Freshly Roasted</h3>
+                    <p>Every batch is roasted in-house daily to ensure maximum freshness and aroma.</p>
+                </div>
+                
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-heart"></i></div>
+                    <h3>Made with Love</h3>
+                    <p>Our skilled baristas pour passion into every cup they craft just for you.</p>
+                </div>
+                
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-wifi"></i></div>
+                    <h3>Cozy Workspace</h3>
+                    <p>Free WiFi, comfortable seating, and the perfect ambiance for work or relaxation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ==========================================
+         CONTACT SECTION
+         ========================================== -->
+    <section class="contact" id="contact">
+        <div class="contact-container">
+            <div class="contact-info reveal">
+                <span class="section-label">Visit Us</span>
+                <h2 class="section-title">Come say <em>hello</em></h2>
+                <p>We'd love to meet you! Drop by our cozy shop or send us a message — we're always happy to chat about coffee.</p>
+                
+                <div class="contact-detail">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <div class="label">Location</div>
+                        <div class="value">Davao City, Philippines</div>
+                    </div>
+                </div>
+                
+                <div class="contact-detail">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <div class="label">Open Hours</div>
+                        <div class="value">Mon - Sun, 7AM - 10PM</div>
+                    </div>
+                </div>
+                
+                <div class="contact-detail">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <div class="label">Phone</div>
+                        <div class="value">+63 912 345 6789</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact form (will connect to PHP later) -->
+            <form class="contact-form reveal" id="contactForm">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="Juan Dela Cruz" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="juan@example.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Your Message</label>
+                    <textarea id="message" name="message" placeholder="Tell us what's on your mind..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                    Send Message <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </section>
+    
+    <!-- ==========================================
+         FOOTER
+         ========================================== -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="logo">Crave<span>Drip</span></div>
+                <p>Crafting exceptional coffee experiences in the heart of Davao City. Every cup tells a story of passion, dedication, and Filipino coffee heritage.</p>
+                
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#menu">Menu</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#">Dine In</a></li>
+                    <li><a href="#">Take Away</a></li>
+                    <li><a href="#">Delivery</a></li>
+                    <li><a href="#">Catering</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Hours</h4>
+                <ul>
+                    <li><a href="#">Mon - Fri: 7AM - 10PM</a></li>
+                    <li><a href="#">Saturday: 8AM - 11PM</a></li>
+                    <li><a href="#">Sunday: 8AM - 9PM</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 CraveDrip Coffee. Crafted with ☕ by Jude Christian Rojas.</p>
+        </div>
+    </footer>
+    
+    <!-- Our custom JavaScript file -->
+    <script src="js/script.js"></script>
+</body>
+</html>
