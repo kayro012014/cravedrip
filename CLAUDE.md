@@ -9,7 +9,7 @@ No build system or package manager. Open files directly in a browser:
 - **Landing page:** open `index.html`
 - **Admin panel:** open `admin/index.html`
 
-For PHP/MySQL backend work (not yet implemented): place the folder in `C:\xampp\htdocs\cravedrip\` and visit `http://localhost/cravedrip/`.
+For PHP/MySQL backend work (not yet implemented): place the folder in `/Applications/MAMP/htdocs/cravedrip/` and visit `http://localhost:8888/cravedrip/`.
 
 ## Architecture
 
@@ -40,6 +40,6 @@ Both stylesheets share the same color palette via `:root` variables. The canonic
 
 All images are stored locally in `assets/images/`. From admin pages, images are referenced as `../assets/images/<file>.jpg`.
 
-## Planned Backend (PHP + MySQL via XAMPP)
+## Planned Backend (PHP + MySQL via MAMP)
 
 When connecting the backend, replace the global array declarations in `admin/js/data.js` with `fetch()` calls to PHP endpoints. The frontend JS already separates data loading from rendering, so each render function just needs its input array — the data source can be swapped without touching the render logic.
