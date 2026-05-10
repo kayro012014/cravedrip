@@ -1,3 +1,9 @@
+<?php
+require 'auth_check.php';
+$userName = $_SESSION['user_name'];
+$userRole = ucfirst($_SESSION['user_role']);
+$initials = implode('', array_map(fn($w) => strtoupper($w[0]), array_slice(explode(' ', $userName), 0, 2)));
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +14,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <?= csrf_meta() ?>
 </head>
 <body>
+<script>
+    if (!sessionStorage.getItem('cravedrip_tab')) {
+        window.location.replace('/cravedrip/admin/pages/logout.php');
+    }
+</script>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -20,21 +32,22 @@
     </div>
     <nav class="sidebar-nav">
         <div class="nav-section">Main</div>
-        <a href="index.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
-        <a href="pos.html"><i class="fas fa-cash-register"></i> Point of Sale</a>
-        <a href="inventory.html" class="active"><i class="fas fa-boxes"></i> Inventory</a>
+        <a href="../index.php"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a href="pos.php"><i class="fas fa-cash-register"></i> Point of Sale</a>
+        <a href="inventory.php" class="active"><i class="fas fa-boxes"></i> Inventory</a>
         <div class="nav-section" style="margin-top:1rem">Shop</div>
-        <a href="../index.html" target="_blank"><i class="fas fa-store"></i> View Website</a>
+        <a href="../../index.html" target="_blank"><i class="fas fa-store"></i> View Website</a>
     </nav>
     <div class="sidebar-footer">
-        <div class="sidebar-user">
-            <div class="user-avatar">JC</div>
+        <div class="sidebar-user" onclick="openProfileModal()">
+            <div class="user-avatar"><?= htmlspecialchars($initials) ?></div>
             <div>
-                <div class="user-name">Jude Christian</div>
-                <div class="user-role">Administrator</div>
+                <div class="user-name"><?= htmlspecialchars($userName) ?></div>
+                <div class="user-role"><?= htmlspecialchars($userRole) ?></div>
+                <div class="user-edit-hint" style="color:rgba(255,255,255,0.6)">Click to edit profile</div>
             </div>
         </div>
-        <button class="btn-logout"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        <a href="logout.php" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
     </div>
 </aside>
 
@@ -94,11 +107,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th data-sort="name"       onclick="sortBy('name')">Item</th>
-                        <th data-sort="stock"      onclick="sortBy('stock')">Stock</th>
-                        <th data-sort="reorderLevel" onclick="sortBy('reorderLevel')">Reorder At</th>
-                        <th data-sort="costPrice"  onclick="sortBy('costPrice')">Cost Price</th>
-                        <th data-sort="sellPrice"  onclick="sortBy('sellPrice')">Sell Price</th>
+                        <th data-sort="name"         onclick="sortBy('name')">Item</th>
+                        <th data-sort="stock"         onclick="sortBy('stock')">Stock</th>
+                        <th data-sort="reorderLevel"  onclick="sortBy('reorderLevel')">Reorder At</th>
+                        <th data-sort="costPrice"     onclick="sortBy('costPrice')">Cost Price</th>
+                        <th data-sort="sellPrice"     onclick="sortBy('sellPrice')">Sell Price</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -217,7 +230,105 @@
     </div>
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/inventory.js"></script>
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal" style="max-width:440px">
+        <div class="modal-header">
+            <h2><i class="fas fa-user-circle" style="color:var(--color-caramel);margin-right:8px"></i>My Profile</h2>
+            <button class="modal-close" onclick="closeProfileModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchProfileTab('info')"><i class="fas fa-id-card"></i> Profile</button>
+                <button class="profile-tab"        onclick="switchProfileTab('password')"><i class="fas fa-lock"></i> Password</button>
+            </div>
+
+            <div id="profileInfoTab">
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="profileName" placeholder="Your full name">
+                </div>
+                <div id="profileMsg"></div>
+            </div>
+
+            <div id="profilePwTab" style="display:none">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="pwCurrent" placeholder="Enter current password">
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="pwNew" placeholder="At least 6 characters">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="pwConfirm" placeholder="Repeat new password">
+                </div>
+                <div id="pwMsg"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeProfileModal()">Cancel</button>
+            <button class="btn btn-primary" id="profileSaveBtn" onclick="saveProfile()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/inventory.js"></script>
+<script>
+const PROFILE_URL = '/cravedrip/admin/pages/profile.php';
+let   _profileTab = 'info';
+
+function openProfileModal() {
+    document.getElementById('profileName').value = <?= json_encode($_SESSION['user_name']) ?>;
+    ['pwCurrent','pwNew','pwConfirm'].forEach(id => document.getElementById(id).value = '');
+    ['profileMsg','pwMsg'].forEach(id => document.getElementById(id).innerHTML = '');
+    switchProfileTab('info');
+    document.getElementById('profileModal').classList.add('open');
+}
+function closeProfileModal() {
+    document.getElementById('profileModal').classList.remove('open');
+}
+function switchProfileTab(tab) {
+    _profileTab = tab;
+    document.getElementById('profileInfoTab').style.display = tab === 'info'     ? '' : 'none';
+    document.getElementById('profilePwTab').style.display   = tab === 'password' ? '' : 'none';
+    document.querySelectorAll('.profile-tab').forEach((btn, i) => {
+        btn.classList.toggle('active', (i === 0 && tab === 'info') || (i === 1 && tab === 'password'));
+    });
+}
+async function saveProfile() {
+    const btn = document.getElementById('profileSaveBtn');
+    btn.disabled = true;
+    const fd = new FormData();
+    if (_profileTab === 'info') {
+        fd.append('action', 'update_name');
+        fd.append('name', document.getElementById('profileName').value.trim());
+    } else {
+        fd.append('action',  'update_password');
+        fd.append('current', document.getElementById('pwCurrent').value);
+        fd.append('new',     document.getElementById('pwNew').value);
+        fd.append('confirm', document.getElementById('pwConfirm').value);
+    }
+    const res  = await fetch(PROFILE_URL, { method: 'POST', headers: { 'X-CSRF-Token': getCsrf() }, body: fd });
+    const data = await res.json();
+    btn.disabled = false;
+    const msgEl = document.getElementById(_profileTab === 'info' ? 'profileMsg' : 'pwMsg');
+    if (data.ok) {
+        if (_profileTab === 'info') {
+            document.querySelectorAll('.user-name').forEach(el => el.textContent = data.name);
+            const initials = data.name.split(' ').slice(0,2).map(w => w[0].toUpperCase()).join('');
+            document.querySelectorAll('.user-avatar').forEach(el => el.textContent = initials);
+        }
+        closeProfileModal();
+        showToast('success', _profileTab === 'info' ? 'Name updated!' : 'Password changed!');
+    } else {
+        msgEl.innerHTML = `<div class="form-msg error">${data.error}</div>`;
+    }
+}
+</script>
 </body>
 </html>

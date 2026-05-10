@@ -1,7 +1,7 @@
-/* CraveDrip Inventory — Frontend Logic */
+/* CraveDrip Inventory — wired to live API */
 
-let items = INVENTORY_ITEMS.map(i => ({ ...i }));
-let filtered = [];
+let items     = [];
+let filtered  = [];
 let activeCat = 'all';
 let searchQ   = '';
 let sortCol   = null;
@@ -12,21 +12,33 @@ let adjType   = 'add';
 
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
-    refreshStats();
-    applyFilter();
+    loadItems();
 });
+
+async function loadItems() {
+    try {
+        const data = await apiGet('inventory.php');
+        if (!data.ok) throw new Error(data.error);
+        items = data.items;
+        refreshStats();
+        applyFilter();
+    } catch (e) {
+        console.error('Inventory load failed:', e);
+        showToast('error', 'Failed to load inventory data.');
+    }
+}
 
 // ── STATS ─────────────────────────────────────────────
 function refreshStats() {
-    const low  = items.filter(i => i.stock > 0 && i.stock <= i.reorderLevel).length;
-    const out  = items.filter(i => i.stock <= 0).length;
-    const val  = items.reduce((s, i) => s + i.costPrice * i.stock, 0);
+    const low = items.filter(i => i.stock > 0 && i.stock <= i.reorderLevel).length;
+    const out = items.filter(i => i.stock <= 0).length;
+    const val = items.reduce((s, i) => s + i.costPrice * i.stock, 0);
 
     document.getElementById('sTotalSKU').textContent = items.length;
     document.getElementById('sLow').textContent      = low;
     document.getElementById('sOut').textContent      = out;
-    document.getElementById('sValue').textContent    = '₱' + val.toLocaleString('en-PH',
-        {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('sValue').textContent    =
+        '₱' + val.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // ── FILTER / SORT / RENDER ────────────────────────────
@@ -45,13 +57,11 @@ function applyFilter() {
             return av < bv ? -sortDir : av > bv ? sortDir : 0;
         });
     }
-
     renderTable();
 }
 
 function renderTable() {
     const tbody = document.getElementById('invTbody');
-
     if (!filtered.length) {
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--color-latte)">
             <i class="fas fa-box-open" style="font-size:1.4rem;display:block;margin-bottom:0.5rem"></i>
@@ -60,7 +70,7 @@ function renderTable() {
     }
 
     tbody.innerHTML = filtered.map(item => {
-        const sc  = item.stock <= 0 ? 'stock-out' : item.stock <= item.reorderLevel ? 'stock-low' : 'stock-good';
+        const sc    = item.stock <= 0 ? 'stock-out' : item.stock <= item.reorderLevel ? 'stock-low' : 'stock-good';
         const badge = item.stock <= 0
             ? `<span class="badge badge-danger">Out of Stock</span>`
             : item.stock <= item.reorderLevel
@@ -76,7 +86,7 @@ function renderTable() {
             <td><span class="${sc}">${item.stock} ${item.unit}</span></td>
             <td style="color:var(--color-latte)">${item.reorderLevel} ${item.unit}</td>
             <td>₱${item.costPrice.toLocaleString()}</td>
-            <td>${item.sellPrice ? '₱' + item.sellPrice.toLocaleString() : '<span style="color:var(--color-latte)">—</span>'}</td>
+            <td>${item.sellPrice != null ? '₱' + item.sellPrice.toLocaleString() : '<span style="color:var(--color-latte)">—</span>'}</td>
             <td>${badge}</td>
             <td>
                 <div style="display:flex;gap:0.35rem;flex-wrap:wrap">
@@ -95,7 +105,7 @@ function renderTable() {
 function sortBy(col) {
     if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
     document.querySelectorAll('thead th[data-sort]').forEach(th => {
-        th.classList.remove('sort-asc','sort-desc');
+        th.classList.remove('sort-asc', 'sort-desc');
         if (th.dataset.sort === col) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
     });
     applyFilter();
@@ -110,7 +120,7 @@ function setCat(cat) {
 
 function setSearch(q) { searchQ = q; applyFilter(); }
 
-// ── ADD / EDIT MODAL ──────────────────────────────────
+// ── ADD / EDIT ────────────────────────────────────────
 function openAdd() {
     editId = null;
     document.getElementById('modalTitle').textContent = 'Add New Item';
@@ -129,41 +139,65 @@ function openEdit(id) {
     document.getElementById('fStock').value      = item.stock;
     document.getElementById('fReorder').value    = item.reorderLevel;
     document.getElementById('fCostPrice').value  = item.costPrice;
-    document.getElementById('fSellPrice').value  = item.sellPrice || '';
+    document.getElementById('fSellPrice').value  = item.sellPrice ?? '';
     openModal('itemModal');
 }
 
-function saveItem() {
+async function saveItem() {
     const name      = document.getElementById('fName').value.trim();
     const category  = document.getElementById('fCat').value;
     const unit      = document.getElementById('fUnit').value;
-    const stock     = parseFloat(document.getElementById('fStock').value)     || 0;
-    const reorder   = parseFloat(document.getElementById('fReorder').value)   || 0;
-    const costPrice = parseFloat(document.getElementById('fCostPrice').value) || 0;
-    const sellPrice = parseFloat(document.getElementById('fSellPrice').value) || null;
+    const stock     = document.getElementById('fStock').value;
+    const reorder   = document.getElementById('fReorder').value;
+    const costPrice = document.getElementById('fCostPrice').value;
+    const sellPrice = document.getElementById('fSellPrice').value;
 
     if (!name || !category || !unit) { alert('Name, category, and unit are required.'); return; }
 
-    if (editId) {
-        const item = items.find(i => i.id === editId);
-        Object.assign(item, { name, category, unit, stock, reorderLevel: reorder, costPrice, sellPrice });
-    } else {
-        const newId = Math.max(0, ...items.map(i => i.id)) + 1;
-        items.push({ id: newId, name, category, unit, stock, reorderLevel: reorder, costPrice, sellPrice });
-    }
+    const fd = new FormData();
+    fd.append('action',     editId ? 'update' : 'add');
+    if (editId) fd.append('id', editId);
+    fd.append('name',       name);
+    fd.append('category',   category);
+    fd.append('unit',       unit);
+    fd.append('stock',      stock);
+    fd.append('reorder',    reorder);
+    fd.append('cost_price', costPrice);
+    if (sellPrice) fd.append('sell_price', sellPrice);
 
-    closeModal('itemModal');
-    refreshStats();
-    applyFilter();
+    const btn = document.querySelector('#itemModal .btn-primary');
+    if (btn) btn.disabled = true;
+
+    try {
+        const data = await apiPost('inventory.php', fd);
+        if (!data.ok) throw new Error(data.error || 'Save failed');
+        closeModal('itemModal');
+        showToast('success', editId ? 'Item updated!' : 'Item added!');
+        await loadItems();
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
-function deleteItem(id) {
+async function deleteItem(id) {
     const item = items.find(i => i.id === id);
     if (!item) return;
     if (!confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
-    items = items.filter(i => i.id !== id);
-    refreshStats();
-    applyFilter();
+
+    const fd = new FormData();
+    fd.append('action', 'delete');
+    fd.append('id', id);
+
+    try {
+        const data = await apiPost('inventory.php', fd);
+        if (!data.ok) throw new Error(data.error || 'Delete failed');
+        showToast('success', 'Item deleted.');
+        await loadItems();
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
 }
 
 // ── STOCK ADJUSTMENT ──────────────────────────────────
@@ -185,33 +219,33 @@ function setAdjType(t) {
         btn.classList.toggle('active', btn.dataset.type === t));
 }
 
-function confirmAdj() {
+async function confirmAdj() {
     const qty = parseFloat(document.getElementById('adjQty').value);
     if (!qty || qty <= 0) { alert('Enter a valid quantity.'); return; }
 
-    const item = items.find(i => i.id === adjId);
-    if (!item) return;
+    const fd = new FormData();
+    fd.append('action', 'adjust');
+    fd.append('id',     adjId);
+    fd.append('type',   adjType);
+    fd.append('qty',    qty);
+    fd.append('reason', document.getElementById('adjReason').value.trim());
 
-    if (adjType === 'add') {
-        item.stock = parseFloat((item.stock + qty).toFixed(3));
-    } else {
-        if (qty > item.stock) { alert('Cannot deduct more than current stock!'); return; }
-        item.stock = parseFloat((item.stock - qty).toFixed(3));
+    const btn = document.querySelector('#adjModal .btn-primary');
+    if (btn) btn.disabled = true;
+
+    try {
+        const data = await apiPost('inventory.php', fd);
+        if (!data.ok) throw new Error(data.error || 'Adjust failed');
+        closeModal('adjModal');
+        showToast('success', 'Stock updated!');
+        await loadItems();
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        if (btn) btn.disabled = false;
     }
-
-    closeModal('adjModal');
-    refreshStats();
-    applyFilter();
 }
 
-// ── MODALS & CLOCK ────────────────────────────────────
+// ── MODALS ────────────────────────────────────────────
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function initClock() {
-    const el = document.getElementById('live-clock');
-    const tick = () => el.textContent = new Date().toLocaleString('en-PH',
-        {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    tick();
-    setInterval(tick, 1000);
-}

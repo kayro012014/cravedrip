@@ -1,42 +1,47 @@
-/* CraveDrip Dashboard — Frontend Logic */
+/* CraveDrip Dashboard — pulls live data from API */
 
 document.addEventListener('DOMContentLoaded', () => {
     initClock();
     loadDashboard();
 });
 
-function loadDashboard() {
-    const session = JSON.parse(sessionStorage.getItem('posOrders') || '[]');
-    const all = [...SAMPLE_ORDERS, ...session];
+async function loadDashboard() {
+    try {
+        const data = await apiGet('dashboard.php');
+        if (!data.ok) throw new Error(data.error);
 
-    const revenue = all.reduce((s, o) => s + o.total, 0);
-    const avg     = all.length ? Math.round(revenue / all.length) : 0;
-    const low     = INVENTORY_ITEMS.filter(i => i.stock > 0 && i.stock <= i.reorderLevel);
-    const out     = INVENTORY_ITEMS.filter(i => i.stock <= 0);
+        document.getElementById('dRevenue').textContent = '₱' + data.revenue.toLocaleString();
+        document.getElementById('dOrders').textContent  = data.orders;
+        document.getElementById('dAvg').textContent     = '₱' + Math.round(data.avg).toLocaleString();
+        document.getElementById('dAlerts').textContent  = data.alerts;
 
-    document.getElementById('dRevenue').textContent = '₱' + revenue.toLocaleString();
-    document.getElementById('dOrders').textContent  = all.length;
-    document.getElementById('dAvg').textContent     = '₱' + avg.toLocaleString();
-    document.getElementById('dAlerts').textContent  = low.length + out.length;
-
-    renderOrders([...all].reverse().slice(0, 10));
-    renderAlerts(out, low);
+        renderOrders(data.recent);
+        renderAlerts(data.out, data.low);
+    } catch (e) {
+        console.error('Dashboard load failed:', e);
+    }
 }
 
 function renderOrders(orders) {
     const tbody = document.getElementById('recentTbody');
-    if (!orders.length) {
+    if (!orders || !orders.length) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--color-latte)">No orders today yet.</td></tr>`;
         return;
     }
-    const mc = { Cash:'badge-success', GCash:'badge-info', Card:'badge-default', cash:'badge-success', gcash:'badge-info', card:'badge-default' };
+    const mc = {
+        Cash:'badge-success', GCash:'badge-info', Card:'badge-default',
+        cash:'badge-success', gcash:'badge-info', card:'badge-default',
+    };
     tbody.innerHTML = orders.map(o => `
         <tr>
-            <td style="font-weight:600;color:var(--color-coffee)">${o.id}</td>
+            <td style="font-weight:600;color:var(--color-coffee)">${o.order_number}</td>
             <td style="color:var(--color-latte)">${o.time}</td>
-            <td style="font-size:0.82rem">${o.items.slice(0,2).join(', ')}${o.items.length>2 ? ` +${o.items.length-2}` : ''}</td>
+            <td style="font-size:0.82rem">
+                ${(o.items || []).slice(0, 2).join(', ')}
+                ${(o.items || []).length > 2 ? ` +${o.items.length - 2}` : ''}
+            </td>
             <td style="font-weight:700;color:var(--color-caramel)">₱${o.total.toLocaleString()}</td>
-            <td><span class="badge ${mc[o.payment]||'badge-default'}">${o.payment}</span></td>
+            <td><span class="badge ${mc[o.payment] || 'badge-default'}">${o.payment}</span></td>
         </tr>`).join('');
 }
 
@@ -61,12 +66,4 @@ function renderAlerts(out, low) {
                     : `${i.stock} ${i.unit} left (min ${i.reorderLevel})`}</div>
             </div>
         </div>`).join('');
-}
-
-function initClock() {
-    const el = document.getElementById('live-clock');
-    const tick = () => el.textContent = new Date().toLocaleString('en-PH',
-        {weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    tick();
-    setInterval(tick, 1000);
 }
